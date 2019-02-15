@@ -1,4 +1,5 @@
 #include <stdio.h>
+#include <stdlib.h>
 #include <ctype.h>
 
 const char lt13[][52] = { {'A','B','C','D','E','F','G','H','I','J','K','L','M','N','O','P','Q','R','S','T','U','V','W','X','Y','Z','a','b','c','d','e','f','g','h','i','j','k','l','m','n','o','p','q','r','s','t','u','v','w','x','y','z'}, 
@@ -72,10 +73,35 @@ char * rot47(char * text)
         return encrypt(text, isrot47, getrot47);
 }
 
-int main(int argc, char *argv[])
+void error(char * msg)
+{
+        fprintf(stderr, "%s\n", msg);
+        exit(EXIT_FAILURE);
+}
+
+char *(*return_rot(int argc, char *argv[])) (char*)
 {
         int i;
         char *(*rot) (char*) = NULL;
+        for(i = 0; i < argc; i++)
+        {
+                if(*argv[i] == '-' && !rot)
+                {
+                        if(*(argv[i] + 1) == 'l' && !*(argv[i] + 2))
+                                rot = rot13;
+                        else if(*(argv[i] + 1) == 'a' && !*(argv[i] + 2))
+                                rot = rot47;
+                }
+                else if(*argv[i] == '-' && rot)
+                        error("Error: Multiple \'-\' parameters detected");
+        }
+        return rot18;
+}
+
+int main(int argc, char *argv[])
+{
+        int i;
+        char *(*rot) (char*);
         if(argc == 1)
         {
                 printf("Expected 1 or more arguments\nProper usage %s \"text here\"\nAlternatively %s text here"
@@ -88,19 +114,8 @@ int main(int argc, char *argv[])
         }
         else if (argc > 2)
         {
-                for(i = 1; i < argc; i++)
-                {
-                        if(*argv[i] == '-')
-                        {
-                                if(*(argv[i] + 1) == 'l' && !*(argv[i] + 2))
-                                        rot = rot13;
-                                else if(*(argv[i] + 1) == 'a' && !*(argv[i] + 2))
-                                        rot = rot47;
-                                break;
-                        }
-                }
-                if(!rot)
-                        rot = rot18;
+                rot = return_rot(argc, argv + 1);
+
                 for(i = 1; i < argc; i++)
                 {
                         if(*argv[i] == '-')
