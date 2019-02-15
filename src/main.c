@@ -75,7 +75,7 @@ char * rot47(char * text)
 
 void error(char * msg)
 {
-        fprintf(stderr, "%s\n", msg);
+        fprintf(stderr, "Error: %s\n", msg);
         exit(EXIT_FAILURE);
 }
 
@@ -93,9 +93,11 @@ char *(*return_rot(int argc, char *argv[])) (char*)
                                 rot = rot47;
                 }
                 else if(*argv[i] == '-' && rot)
-                        error("Error: Multiple \'-\' parameters detected");
+                        error("Multiple \'-\' parameters detected");
         }
-        return rot18;
+        if(!rot)
+                rot = rot18;
+        return rot;
 }
 
 int main(int argc, char *argv[])
@@ -114,13 +116,13 @@ int main(int argc, char *argv[])
         }
         else if (argc > 2)
         {
-                rot = return_rot(argc, argv + 1);
+                rot = return_rot(argc - 1, argv + 1);
 
                 for(i = 1; i < argc; i++)
                 {
                         if(*argv[i] == '-')
                                 continue;
-                        printf("%s ",rot(argv[i]));
+                        printf("%s ", rot(argv[i]));
                 }
                 printf("\n");
         }
